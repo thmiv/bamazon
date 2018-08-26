@@ -18,10 +18,10 @@ connection.connect(function(err) {
   console.log("connected as id " + connection.threadId + "\n");
   // execute function below
     //createProduct("Stylus Pen", "Accessories", "500000", "25");
-    readProducts();
+    customerPurchase();
 });
 
-function createProduct(newItem, newDept, newPrice, newStock) {
+function createProduct(newItem, newDept, newPrice, newStock) {  // creates a new product and adds it to sqlDb
   console.log("Inserting a new product...\n");
   var query = connection.query(
     "INSERT INTO products SET ?",
@@ -34,8 +34,7 @@ function createProduct(newItem, newDept, newPrice, newStock) {
     function(err, res) {
       console.log(res.affectedRows + " product inserted!\n");
       // Call updateProduct AFTER the INSERT completes
-      //updateProduct();
-      readProducts();
+      getProducts();
     }
   );
 
@@ -89,4 +88,33 @@ function readProducts() {
 
     connection.end();
   });
+}
+
+function customerPurchase() {
+  var getItemsArrary = [];
+  connection.query("SELECT * FROM products", function(err, res) { 
+    if (err) { throw err };
+    var productArray = [];
+    var subProductArray = [];
+    for (i = 0; i < res.length; i++) {
+        subProductArray.push(res[i].product_name);
+        subProductArray.push(res[i].department_name);
+        subProductArray.push(res[i].customer_price);
+        subProductArray.push(res[i].stock_quantity);
+        productArray.push(subProductArray);
+        subProductArray = [];
+    }
+    getItemsArrary = productArray;
+    console.log(getItemsArrary);
+  });
+  
+  
+  // inquirer.prompt([{
+  //   name: "userChoice",
+  //   type: "rawlist",
+  //   message: "What would you like to purchase?",
+  //   choices: ["asdf", "gdfsa", "adafgea"] //getItemsArrary
+  // }]).then(function(answer) {
+  //   console.log(answer.userChoice);
+  // });
 }
